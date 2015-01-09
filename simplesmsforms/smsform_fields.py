@@ -47,26 +47,26 @@ class GenericSMSField(object):
 
 
 # SMSFields
-class SpecialKeyField(GenericSMSField):
+class PrefixField(GenericSMSField):
 
     """This field is for the special fields that have a first letter followed by
     the actual data. This class just strips out that first letter"""
 
     def __init__(self, *args, **kwargs):
-        super(SpecialKeyField, self).__init__(*args, **kwargs)
-        self.special_key = kwargs.get("special_key") or ""
+        super(PrefixField, self).__init__(*args, **kwargs)
+        self.prefix = kwargs.get("prefix") or ""
 
     def to_python(self, text):
         """The returned field should be either an ID or an NRC. Nicely cleaned
         """
-        text = super(SpecialKeyField, self).to_python(text)
-        if text.startswith(self.special_key):
-            return text[len(self.special_key):]
+        text = super(PrefixField, self).to_python(text)
+        if text.startswith(self.prefix):
+            return text[len(self.prefix):]
 
         return text
 
 
-class MultiChoiceField(SpecialKeyField):
+class MultiChoiceField(PrefixField):
 
     def __init__(self, choices, choice_divider=",", *args, **kwargs):
         self.choice_divider = choice_divider
@@ -79,7 +79,7 @@ class MultiChoiceField(SpecialKeyField):
         return text.split(self.choice_divider)
 
 
-class SingleChoiceField(SpecialKeyField):
+class SingleChoiceField(PrefixField):
     def __init__(self, choices, *args, **kwargs):
         super(SingleChoiceField, self).__init__(*args, **kwargs)
         self.choices = choices

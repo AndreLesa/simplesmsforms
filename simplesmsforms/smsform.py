@@ -12,10 +12,10 @@ class SMSForm(object):
     class MotherForm(SMSForm):
                     keyword = 'register'
 
-                    first_name = SpecialKeyField(special_key=fn)
-                    last_name = SpecialKeyField(special_key=ln)
-                    age =  SpecialKeyField(ag)
-                    ward = SpecialKeyField(special_key=wd)
+                    first_name = PrefixField(prefix=fn)
+                    last_name = PrefixField(prefix=ln)
+                    age =  PrefixField(ag)
+                    ward = PrefixField(prefix=wd)
 
                     """
     keyword = ""

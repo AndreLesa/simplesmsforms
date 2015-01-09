@@ -1,6 +1,6 @@
 import datetime
 import unittest
-from smsform_fields import (GenericSMSField, SpecialKeyField, SingleChoiceField,
+from smsform_fields import (GenericSMSField, PrefixField, SingleChoiceField,
                         MultiChoiceField, DateField)
 from smsform_exceptions import (ChoiceException, InvalidDateException,
     MissingRequiredFieldException)
@@ -11,10 +11,10 @@ class PersonForm(SMSForm):
     keyword = "REG"
     blank_field = "_"
 
-    first_name = SpecialKeyField(special_key="fn")
-    last_name = SpecialKeyField(special_key="ln")
-    age = SpecialKeyField(special_key="ag")
-    location = SpecialKeyField(special_key="loc")
+    first_name = PrefixField(prefix="fn")
+    last_name = PrefixField(prefix="ln")
+    age = PrefixField(prefix="ag")
+    location = PrefixField(prefix="loc")
 
     def get_fields(self):
         return [self.first_name, self.last_name, self.age, self.location]
@@ -74,14 +74,14 @@ class TestSMSFields(unittest.TestCase):
     def setUp(self):
         self.POSITION_CHOICES = ("clerk", "officer", "supervisor", "director")
 
-    def test_special_key_to_python(self):
-        field = SpecialKeyField(special_key="fn")
+    def test_prefix_to_python(self):
+        field = PrefixField(prefix="fn")
         data = field.to_python(text="fnandre")
         self.assertEqual(data, "andre")
 
     def test_multichoice_to_python(self):
         field = MultiChoiceField(
-            special_key="pos",
+            prefix="pos",
             choices=self.POSITION_CHOICES,
         )
         # test single choice
@@ -105,7 +105,7 @@ class TestSMSFields(unittest.TestCase):
         self.assertEqual(python_date, datetime.datetime(2014, 11, 8))
 
     def test_for_required_field(self):
-        field = SpecialKeyField(special_key="fn")
+        field = PrefixField(prefix="fn")
 
         with self.assertRaises(MissingRequiredFieldException):
             python_obj = field.to_python("fn")
