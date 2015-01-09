@@ -42,10 +42,10 @@ class SMSForm(object):
     def validate_form(self, bound_fields):
         passed_validation = True
         errors = []
-        for text, sms_field in bound_fields:
+        for sms_field, text in bound_fields:
             try:
-                validated, msg = sms_field.process_field(text)
-            except SMSFieldException:
+                valid_obj = sms_field.process_field(text)
+            except SMSFieldException, e:
                 errors.append(e)
                 passed_validation = False
 

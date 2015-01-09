@@ -44,6 +44,30 @@ class TestSMSForms(unittest.TestCase):
         ]
         self.assertEqual(list(form_bound_fields), expected_bound_fields)
 
+    def test_formvalidation(self):
+        bound_fields = [
+            (self.person_form.first_name, "fnAndre"),
+            (self.person_form.last_name,  "lnLesa"),
+            (self.person_form.age, "ag12"),
+            (self.person_form.location, "locLusaka")
+        ]
+        passed_validation, errors = self.person_form.validate_form(bound_fields)
+        self.assertTrue(passed_validation)
+        self.assertEqual([], errors)
+
+    def test_failed_formvalidation(self):
+        PersonForm.date_reg = DateField()
+        bound_fields = [
+            (self.person_form.first_name, "fnAndre"),
+            (self.person_form.last_name,  "lnLesa"),
+            (self.person_form.age, "ag12"),
+            (self.person_form.location, "locLusaka"),
+            (self.person_form.date_reg, "08xxx11xxx14")
+        ]
+        passed_validation, errors = self.person_form.validate_form(bound_fields)
+        self.assertFalse(passed_validation)
+        date_error = errors[0]
+        self.assertIsInstance(date_error, InvalidDateException)
 
 class TestSMSFields(unittest.TestCase):
 

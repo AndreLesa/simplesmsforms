@@ -38,7 +38,7 @@ class GenericSMSField(object):
         	raise
 
         try:
-        	valid = validate(python_obj)
+        	python_obj = self.validate(python_obj)
         except SMSFieldException:
         	#Do something
      		raise
