@@ -12,7 +12,7 @@ A small package to help in parsing simple text messages to come up with ordered 
       keywords='RapidSMS, SMS, Django',
       author='Andre Lesa',
       author_email='andre@andrelesa.com',
-      url='',
+      url='https://github.com/AndreLesa/simplesmsforms',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
