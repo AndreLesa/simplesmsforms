@@ -1,6 +1,9 @@
+import re
 import itertools
 from smsform_exceptions import SMSFieldException
-#SMS Form
+# SMS Form
+
+
 class SMSForm(object):
 
     """The SMS form represents the entire text SMS passed in from the user as a
@@ -12,10 +15,10 @@ class SMSForm(object):
     class MotherForm(SMSForm):
                     keyword = 'register'
 
-                    first_name = PrefixField(prefix=fn)
-                    last_name = PrefixField(prefix=ln)
+                    first_name = PrefixField(prefixes=fn)
+                    last_name = PrefixField(prefixes=ln)
                     age =  PrefixField(ag)
-                    ward = PrefixField(prefix=wd)
+                    ward = PrefixField(prefixes=wd)
 
                     """
     keyword = ""
@@ -28,12 +31,30 @@ class SMSForm(object):
         fields = text.split(" ")
         return [field.strip() for field in fields[1:] if field != ""]
 
-    def bind_fields(self, text_fields):
-        """Binds the passed in text fields with the form fields"""
+    def bind_fields(self, text_string):
+        """Binds the passed in text fields with the form fields and returns
+        a dict that looks like:
+        {field_name: ("prefix", "value")}
+        """
+
+        """
         bound_fields = itertools.izip_longest(
             self.get_fields(),
             text_fields,
             fillvalue=" ")
+        """
+        bound_fields = {}
+        for expected_field in self.get_fields():
+            for prefix in expected_field.prefixes:
+                prefix_regex = re.compile("{prefix}(?P<{name}>\w*)".format(
+                    prefix=prefix,
+                    name=expected_field.name
+                ), re.IGNORECASE)
+
+                match = prefix_regex.search(text_string)
+                if match:
+                    bound_fields[expected_field.name] = (
+                        prefix, match.groupdict()[expected_field.name])
         return bound_fields
 
     def get_fields(self):
