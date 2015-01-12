@@ -16,6 +16,16 @@ class GenericSMSField(object):
         self.prefixes = kwargs.get("prefixes") or [""]
         self.accepted_prefix = ""
 
+    def get_prefix_regexes(self):
+        prefix_regexes = []
+        for prefix in self.prefixes:
+            prefix_regex = "{prefix}(?P<{name}>\w*)".format(
+            prefix=prefix,
+            name=self.name
+            )
+            prefix_regexes.append({"prefix":prefix, "regex":prefix_regex})
+        return prefix_regexes
+
     def get_verbose_name(self):
         name_parts = self.name.split("_")
         return " ".join(name_parts).title()

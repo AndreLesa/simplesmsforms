@@ -45,16 +45,12 @@ class SMSForm(object):
         """
         bound_fields = ()
         for expected_field in self.get_fields():
-            for prefix in expected_field.prefixes:
-                prefix_regex = re.compile("{prefix}(?P<{name}>\w*)".format(
-                    prefix=prefix,
-                    name=expected_field.name
-                ), re.IGNORECASE)
-
-                match = prefix_regex.search(text_string)
+            for prefix_regex in expected_field.get_prefix_regexes():
+                compiled_regex = re.compile(prefix_regex["regex"])
+                match = compiled_regex.search(text_string)
                 if match:
                     bound_field= (expected_field,  (
-                        prefix, match.groupdict()[expected_field.name]))
+                        prefix_regex["prefix"], match.groupdict()[expected_field.name]))
                     bound_fields += (bound_field, )
                     continue
         return bound_fields
