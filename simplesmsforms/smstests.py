@@ -44,7 +44,6 @@ class TestSMSForms(unittest.TestCase):
             (self.person_form.age, ("ag", "12")),
             (self.person_form.location, ("loc", "Lusaka")),
         )
-        import ipdb;ipdb.set_trace()
         self.assertEqual(form_bound_fields, expected_bound_fields)
 
     def test_formvalidation(self):
