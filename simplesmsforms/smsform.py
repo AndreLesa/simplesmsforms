@@ -43,7 +43,7 @@ class SMSForm(object):
             text_fields,
             fillvalue=" ")
         """
-        bound_fields = {}
+        bound_fields = ()
         for expected_field in self.get_fields():
             for prefix in expected_field.prefixes:
                 prefix_regex = re.compile("{prefix}(?P<{name}>\w*)".format(
@@ -53,8 +53,10 @@ class SMSForm(object):
 
                 match = prefix_regex.search(text_string)
                 if match:
-                    bound_fields[expected_field.name] = (
-                        prefix, match.groupdict()[expected_field.name])
+                    bound_field= (expected_field,  (
+                        prefix, match.groupdict()[expected_field.name]))
+                    bound_fields += (bound_field, )
+                    continue
         return bound_fields
 
     def get_fields(self):
@@ -63,9 +65,9 @@ class SMSForm(object):
     def validate_form(self, bound_fields):
         passed_validation = True
         errors = []
-        for sms_field, text in bound_fields:
+        for bound_field in bound_fields:
             try:
-                valid_obj = sms_field.process_field(text)
+                valid_obj = bound_field[0].process_field(bound_field[1][1])
             except SMSFieldException, e:
                 errors.append(e)
                 passed_validation = False
@@ -73,8 +75,7 @@ class SMSForm(object):
         return passed_validation, errors
 
     def process_form(self, original_text):
-        parsed_text = self.parse_text()
-        bound_fields = self.bind_fields(parsed_text)
-        passed_validation, errors = self.validate(bound_fields)
+        bound_fields = self.bind_fields(original_text)
+        passed_validation, errors = self.validate_form(bound_fields)
 
         return passed_validation, bound_fields, errors
