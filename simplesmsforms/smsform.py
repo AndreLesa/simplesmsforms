@@ -78,4 +78,12 @@ class SMSForm(object):
         bound_fields = self.bind_fields(original_text)
         passed_validation, errors = self.validate_form(bound_fields)
 
-        return passed_validation, bound_fields, errors
+        #The bound fields in here have a structure that binds the actual field
+        #functions to the field and prefix. We transform that to (field name, (prefix, text))
+        transformed_bound_fields = []
+        for bound_field in bound_fields:
+            prefix_with_text = (bound_field[1][0], bound_field[1][1])
+            transformed_bound_fields.append(
+                (bound_field[0].name, prefix_with_text)
+                )
+        return passed_validation, transformed_bound_fields, errors
