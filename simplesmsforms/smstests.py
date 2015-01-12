@@ -29,6 +29,12 @@ class TestSMSForms(unittest.TestCase):
     def setUp(self):
         self.person_form = PersonForm()
         self.person_form.original_text = "REG fnAndre lnLesa ag12 locLusaka"
+        self.expected_bound_fields =  (
+            (self.person_form.first_name, ("fn", "Andre")),
+            (self.person_form.last_name,  ("ln", "Lesa")),
+            (self.person_form.age, ("ag", "12")),
+            (self.person_form.location, ("loc", "Lusaka")),
+        )
 
     def test_parser(self):
         parsed = self.person_form.parse_text()
@@ -38,40 +44,48 @@ class TestSMSForms(unittest.TestCase):
         form_bound_fields = self.person_form.bind_fields(
             self.person_form.original_text)
 
-        expected_bound_fields = (
-            (self.person_form.first_name, ("fn", "Andre")),
-            (self.person_form.last_name,  ("ln", "Lesa")),
-            (self.person_form.age, ("ag", "12")),
-            (self.person_form.location, ("loc", "Lusaka")),
-        )
-        self.assertEqual(form_bound_fields, expected_bound_fields)
+        self.assertEqual(form_bound_fields, self.expected_bound_fields)
 
     def test_formvalidation(self):
-        bound_fields = [
-            (self.person_form.first_name, ("fn", "Andre")),
-            (self.person_form.last_name,  ("ln", "Lesa")),
-            (self.person_form.age, ("ag", "12")),
-            (self.person_form.location, ("loc", "Lusaka"))
-        ]
         passed_validation, errors = self.person_form.validate_form(
-            bound_fields)
+            self.expected_bound_fields)
         self.assertTrue(passed_validation)
         self.assertEqual([], errors)
 
     def test_failed_formvalidation(self):
         PersonForm.date_reg = DateField(name="person_reg_date")
-        bound_fields = [
-            (self.person_form.first_name, ("fn", "Andre")),
-            (self.person_form.last_name,  ("ln", "Lesa")),
-            (self.person_form.age, ("ag", "12")),
-            (self.person_form.location, ("loc", "Lusaka")),
-            (self.person_form.date_reg, ("", "08xxx11xxx14"))
-        ]
+        bound_fields = self.expected_bound_fields + (
+            (self.person_form.date_reg, ("", "08xxx11xxx14")),
+        )
         passed_validation, errors = self.person_form.validate_form(
             bound_fields)
         self.assertFalse(passed_validation)
         date_error = errors[0]
         self.assertIsInstance(date_error, InvalidDateException)
+
+    def test_form_processing(self):
+        expected_bound_fields = (
+            (self.person_form.first_name.name, ("fn", "Andre")),
+            (self.person_form.last_name.name,  ("ln", "Lesa")),
+            (self.person_form.age.name, ("ag", "12")),
+            (self.person_form.location.name, ("loc", "Lusaka")),
+        )
+        process_form_result = self.person_form.process_form(original_text="REG fnAndre lnLesa ag12 locLusaka")
+        self.assertEqual(process_form_result, (True, expected_bound_fields, []))
+
+    def test_form_processing_error(self):
+        process_form_result = self.person_form.process_form(original_text="REG fn ln ag12 locLusaka")
+        expected_bound_fields = (
+                ('first_name', ('fn', '')),
+                ('last_name', ('ln', '')),
+                ('age', ('ag', '12')),
+                ('location', ('loc', 'Lusaka'))
+                )
+
+        self.assertFalse(process_form_result[0])
+        self.assertEqual(process_form_result[1], expected_bound_fields)
+        for exception in process_form_result[2]:
+            self.assertIsInstance(exception, MissingRequiredFieldException)
 
 class TestSMSFields(unittest.TestCase):
 

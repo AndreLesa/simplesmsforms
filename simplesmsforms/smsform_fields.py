@@ -14,12 +14,18 @@ class GenericSMSField(object):
         self.name = name
         self.validators = kwargs.get('validators') or []
         self.prefixes = kwargs.get("prefixes") or [""]
+        self.accepted_prefix = ""
 
+    def get_verbose_name(self):
+        name_parts = self.name.split("_")
+        return " ".join(name_parts).title()
 
     def to_python(self, text, accepted_prefix=""):
         """Convert the passed in text to a valid python object, any special
         conversions from the passed in text to a valid python object should
         happen here."""
+        self.accepted_prefix = self.accepted_prefix or accepted_prefix
+
         text = text.strip().lower()
         return text, accepted_prefix
 
@@ -27,7 +33,7 @@ class GenericSMSField(object):
     def validate(self, value):
         # check to see if the field is required and present
         if self.required and value in self.empty_values:
-            raise MissingRequiredFieldException(self.__class__.__name__)
+            raise MissingRequiredFieldException(self.get_verbose_name())
 
         for validator in self.validators:
             try:
@@ -36,21 +42,11 @@ class GenericSMSField(object):
                 raise
         return True
 
-    def process_field(self, text):
+    def process_field(self, text, accepted_prefix):
         #Try to split into text and the accepted prefix
 
-        try:
-            python_obj = self.to_python(text)
-        except SMSFieldException:
-            # Do something
-            raise
-
-        try:
-            python_obj = self.validate(python_obj)
-        except SMSFieldException:
-            # Do something
-            raise
-
+        python_obj, accepted_prefix = self.to_python(text, accepted_prefix)
+        python_obj = self.validate(python_obj)
         return python_obj
 
 

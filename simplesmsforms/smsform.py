@@ -66,8 +66,11 @@ class SMSForm(object):
         passed_validation = True
         errors = []
         for bound_field in bound_fields:
+            field = bound_field[0]
+            bound_text = bound_field[1][1]
+            prefix = bound_field[1][0]
             try:
-                valid_obj = bound_field[0].process_field(bound_field[1][1])
+                valid_obj = field.process_field(bound_text, prefix)
             except SMSFieldException, e:
                 errors.append(e)
                 passed_validation = False
@@ -80,10 +83,10 @@ class SMSForm(object):
 
         #The bound fields in here have a structure that binds the actual field
         #functions to the field and prefix. We transform that to (field name, (prefix, text))
-        transformed_bound_fields = []
+        transformed_bound_fields = ()
         for bound_field in bound_fields:
             prefix_with_text = (bound_field[1][0], bound_field[1][1])
-            transformed_bound_fields.append(
+            transformed_bound_fields += ((
                 (bound_field[0].name, prefix_with_text)
-                )
+                ,))
         return passed_validation, transformed_bound_fields, errors
