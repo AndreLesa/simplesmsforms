@@ -16,7 +16,7 @@ class GenericSMSField(object):
         self.prefixes = kwargs.get("prefixes") or [""]
         self.accepted_prefix = ""
 
-    def get_prefix_regexes(self):
+    def get_field_regex(self):
         prefix_regexes = []
         for prefix in self.prefixes:
             prefix_regex = "{prefix}(?P<{name}>\w*)".format(
@@ -88,7 +88,6 @@ class SingleChoiceField(PrefixField):
         super(SingleChoiceField, self).__init__(*args, **kwargs)
         self.choices = choices
         self.validators.append(single_choice_validator)
-
 
 class DateField(GenericSMSField):
 
