@@ -81,6 +81,9 @@ class MultiChoiceField(GenericSMSField):
 
         return text.split(self.choice_divider), accepted_prefix
 
+    def get_field_regex(self):
+        choices_string = "|".join(self.choices)
+        return "({choices_string})".format(choices_string=choices_string)
 
 class SingleChoiceField(PrefixField):
 

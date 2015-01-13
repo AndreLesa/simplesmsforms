@@ -146,6 +146,17 @@ class TestSMSFields(unittest.TestCase):
         with self.assertRaisesRegexp(ChoiceException, expected_msg):
             field.validate('ceo')
 
+    def test_multichoice_regex(self):
+        field = MultiChoiceField(
+            choices=['one', 'two', 'three', 'four', 'five'],
+            name="numbers"
+            )
+        regex = field.get_field_regex()
+        match = re.findall(regex, "one,two")
+
+        #self.assertEqual(match, ["one", "two"])
+
+
     def test_multichoice_validator(self):
         field = MultiChoiceField(
             choices=self.POSITION_CHOICES, name="First Name")

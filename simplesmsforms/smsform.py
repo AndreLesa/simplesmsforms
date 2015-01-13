@@ -3,6 +3,11 @@ import itertools
 from smsform_exceptions import SMSFieldException
 # SMS Form
 
+def to_string(item):
+    if isinstance(item, list):
+        return ",".join(item)
+    if isinstance(item, str):
+        return item
 
 class SMSForm(object):
 
@@ -45,12 +50,14 @@ class SMSForm(object):
         """
         bound_fields = ()
         for expected_field in self.get_fields():
-            for prefix_regex in expected_field.get_prefix_regexes():
+            for prefix_regex in expected_field.get_field_regex():
                 compiled_regex = re.compile(prefix_regex["regex"])
-                match = compiled_regex.search(text_string)
+                match = compiled_regex.findall(text_string)
                 if match:
-                    bound_field= (expected_field,  (
-                        prefix_regex["prefix"], match.groupdict()[expected_field.name]))
+                    bound_field = (
+                        expected_field,
+                        (prefix_regex["prefix"], to_string(match))
+                        )
                     bound_fields += (bound_field, )
                     continue
         return bound_fields
