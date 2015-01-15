@@ -16,6 +16,7 @@ class GenericSMSField(object):
         self.name = name
         self.validators = kwargs.get('validators') or []
         self.prefixes = kwargs.get("prefixes") or [""]
+        self.prefixes.sort(key=len, reverse=True)#Longest prefix should come first
         self.accepted_prefix = ""
 
     def get_field_regex(self):

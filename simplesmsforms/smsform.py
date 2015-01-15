@@ -59,7 +59,8 @@ class SMSForm(object):
                         (prefix_regex["prefix"], to_string(match))
                         )
                     bound_fields += (bound_field, )
-                    continue
+                    expected_field.accepted_prefix = prefix_regex["prefix"]
+                    break
         return bound_fields
 
     def get_fields(self):
