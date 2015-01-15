@@ -89,7 +89,7 @@ class MultiChoiceField(GenericSMSField):
         choices_string = "|".join(self.choices)
         return [
             {
-                "prefix": "", "prefix_regex": "({choices_string})".format(choices_string=choices_string)
+                "prefix": "", "regex": "({choices_string})".format(choices_string=choices_string)
             }
         ]
 
