@@ -63,7 +63,8 @@ class SMSForm(object):
         return bound_fields
 
     def get_fields(self):
-        return []
+        """Must return a list of the fields to be included in the form"""
+        raise NotImplementedError
 
     def validate_form(self, bound_fields):
         passed_validation = True

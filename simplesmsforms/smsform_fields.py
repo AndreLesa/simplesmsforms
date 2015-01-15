@@ -6,6 +6,8 @@ from smsform_exceptions import (SMSFieldException, ChoiceException, InvalidDateE
 from smsform_validators import multiple_choice_validator, single_choice_validator
 
 # SMS FIELD
+
+
 class GenericSMSField(object):
     required = True
     empty_values = [None, [], ""]
@@ -17,13 +19,14 @@ class GenericSMSField(object):
         self.accepted_prefix = ""
 
     def get_field_regex(self):
+        """Return a dict of 'prefix':prefix and regex:regex"""
         prefix_regexes = []
         for prefix in self.prefixes:
             prefix_regex = "{prefix}(?P<{name}>\w*)".format(
-            prefix=prefix,
-            name=self.name
+                prefix=prefix,
+                name=self.name
             )
-            prefix_regexes.append({"prefix":prefix, "regex":prefix_regex})
+            prefix_regexes.append({"prefix": prefix, "regex": prefix_regex})
         return prefix_regexes
 
     def get_verbose_name(self):
@@ -39,7 +42,6 @@ class GenericSMSField(object):
         text = text.strip().lower()
         return text, accepted_prefix
 
-
     def validate(self, value):
         # check to see if the field is required and present
         if self.required and value in self.empty_values:
@@ -53,7 +55,7 @@ class GenericSMSField(object):
         return True
 
     def process_field(self, text, accepted_prefix):
-        #Try to split into text and the accepted prefix
+        # Try to split into text and the accepted prefix
 
         python_obj, accepted_prefix = self.to_python(text, accepted_prefix)
         python_obj = self.validate(python_obj)
@@ -68,6 +70,7 @@ class PrefixField(GenericSMSField):
 
     pass
 
+
 class MultiChoiceField(GenericSMSField):
 
     def __init__(self, choices, choice_divider=",", *args, **kwargs):
@@ -77,13 +80,19 @@ class MultiChoiceField(GenericSMSField):
         self.validators.append(multiple_choice_validator)
 
     def to_python(self, text, accepted_prefix):
-        text, accepted_prefix = super(MultiChoiceField, self).to_python(text, accepted_prefix)
+        text, accepted_prefix = super(
+            MultiChoiceField, self).to_python(text, accepted_prefix)
 
         return text.split(self.choice_divider), accepted_prefix
 
     def get_field_regex(self):
         choices_string = "|".join(self.choices)
-        return "({choices_string})".format(choices_string=choices_string)
+        return [
+            {
+                "prefix": "", "prefix_regex": "({choices_string})".format(choices_string=choices_string)
+            }
+        ]
+
 
 class SingleChoiceField(PrefixField):
 
@@ -91,6 +100,7 @@ class SingleChoiceField(PrefixField):
         super(SingleChoiceField, self).__init__(*args, **kwargs)
         self.choices = choices
         self.validators.append(single_choice_validator)
+
 
 class DateField(GenericSMSField):
 
