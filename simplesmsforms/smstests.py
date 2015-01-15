@@ -151,8 +151,9 @@ class TestSMSFields(unittest.TestCase):
             choices=['one', 'two', 'three', 'four', 'five'],
             name="numbers"
             )
-        regex = field.get_field_regex()
-        match = re.findall(regex, "one,two")
+        regex_dict = field.get_field_regex()[0]
+
+        match = re.findall(regex_dict["prefix_regex"], "one,two")
 
         #self.assertEqual(match, ["one", "two"])
 
