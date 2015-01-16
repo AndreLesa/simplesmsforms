@@ -55,13 +55,15 @@ class GenericSMSField(object):
                 raise
         return True
 
-    def process_field(self, text, accepted_prefix):
+    def process_field(self, text, accepted_prefix=""):
         # Try to split into text and the accepted prefix
 
         python_obj, accepted_prefix = self.to_python(text, accepted_prefix)
-        python_obj = self.validate(python_obj)
+        self.validate(python_obj)
         return python_obj
 
+    def __repr__(self):
+        return "<{name}> object".format(name=self.name)
 
 # SMSFields
 class PrefixField(GenericSMSField):
@@ -106,9 +108,12 @@ class SingleChoiceField(PrefixField):
 class DateField(GenericSMSField):
 
     def __init__(self, name, *args, **kwargs):
-        date_formats = kwargs.get("date_formats", None) or ["%d/%b/%y"]
+        date_formats = kwargs.get("date_formats", None) or ["%d/%b/%y", "%d%b%y"]
         super(DateField, self).__init__(name, *args, **kwargs)
         self.date_formats = date_formats
+
+    def get_field_regex(self):
+        format_one = ""
 
     def to_python(self, date_string, accepted_prefix=""):
         python_date = None
@@ -123,7 +128,7 @@ class DateField(GenericSMSField):
 
         if not python_date:
             raise InvalidDateException(
-                "Date not recognized, please use the format: day/Month/Year"
+                "Date not recognized, please use the format: dayMonthYear"
             )
 
         return python_date, accepted_prefix

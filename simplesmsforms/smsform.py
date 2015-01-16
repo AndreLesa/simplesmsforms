@@ -68,8 +68,12 @@ class SMSForm(object):
         raise NotImplementedError
 
     def validate_form(self, bound_fields):
+        """Responsible for converting fields to valid python objects and doing
+        any field based validation
+        TODO: Terrible doing validation and conversion to python in this method"""
         passed_validation = True
         errors = []
+        python_fields = ()
         for bound_field in bound_fields:
             field = bound_field[0]
             bound_text = bound_field[1][1]
@@ -79,12 +83,14 @@ class SMSForm(object):
             except SMSFieldException, e:
                 errors.append(e)
                 passed_validation = False
+            else:
+                python_fields += ((field, (prefix, valid_obj)),)
 
-        return passed_validation, errors
+        return passed_validation, python_fields, errors
 
     def process_form(self, original_text):
         bound_fields = self.bind_fields(original_text)
-        passed_validation, errors = self.validate_form(bound_fields)
+        passed_validation, python_fields, errors = self.validate_form(bound_fields)
 
         #The bound fields in here have a structure that binds the actual field
         #functions to the field and prefix. We transform that to (field name, (prefix, text))

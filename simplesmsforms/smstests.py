@@ -16,10 +16,10 @@ class PersonForm(SMSForm):
     last_name = PrefixField(prefixes=["ln"], name="last_name")
     age = PrefixField(prefixes=["ag"], name="age")
     location = PrefixField(prefixes=["loc"], name="location")
-    date = PrefixField(prefixes=[""], name="date")
+    date = PrefixField(prefixes=["dt"], name="date")
 
     def get_fields(self):
-        return [self.first_name, self.last_name, self.age, self.location]
+        return [self.first_name, self.last_name, self.age, self.location, self.date]
 
 # Create your tests here.
 
@@ -47,17 +47,30 @@ class TestSMSForms(unittest.TestCase):
         self.assertEqual(form_bound_fields, self.expected_bound_fields)
 
     def test_formvalidation(self):
-        passed_validation, errors = self.person_form.validate_form(
+        passed_validation, python_fields, errors = self.person_form.validate_form(
             self.expected_bound_fields)
         self.assertTrue(passed_validation)
         self.assertEqual([], errors)
+
+    def test_form_validation_date(self):
+        PersonForm.date_reg = DateField(name="person_reg_date")
+        bound_fields = self.expected_bound_fields + (
+            (self.person_form.date_reg, ("dt", "12jan15")),
+        )
+        passed_validation, python_fields, errors = self.person_form.validate_form(
+            bound_fields)
+
+        self.assertTrue(passed_validation)
+
+        date_field = python_fields[4][1][1]
+        self.assertIsInstance(date_field, datetime.date)
 
     def test_failed_formvalidation(self):
         PersonForm.date_reg = DateField(name="person_reg_date")
         bound_fields = self.expected_bound_fields + (
             (self.person_form.date_reg, ("", "08xxx11xxx14")),
         )
-        passed_validation, errors = self.person_form.validate_form(
+        passed_validation, python_fields, errors = self.person_form.validate_form(
             bound_fields)
         self.assertFalse(passed_validation)
         date_error = errors[0]
@@ -167,6 +180,13 @@ class TestSMSFields(unittest.TestCase):
         # because when done in the field itself, the set messes up the ordering
         with self.assertRaisesRegexp(ChoiceException, expected_msg):
             field.validate(["attorney", "ceo"])
+
+    def test_to_python(self):
+        field = DateField(name="date_field")
+
+        date = field.process_field("12jan15")
+
+
 
     """
     def test_multiple_prefixes(self):
