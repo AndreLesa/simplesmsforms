@@ -96,12 +96,11 @@ class MultiChoiceField(GenericSMSField):
         ]
 
 
-class SingleChoiceField(PrefixField):
+class SingleChoiceField(MultiChoiceField):
 
     def __init__(self, choices, *args, **kwargs):
-        super(SingleChoiceField, self).__init__(*args, **kwargs)
-        self.choices = choices
-        self.validators.append(single_choice_validator)
+        super(SingleChoiceField, self).__init__(choices, *args, **kwargs)
+        self.validators = [single_choice_validator]
 
 
 class DateField(GenericSMSField):
