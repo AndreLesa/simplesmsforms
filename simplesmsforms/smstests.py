@@ -87,10 +87,9 @@ class TestSMSForms(unittest.TestCase):
         self.assertEqual(process_form_result, (True, expected_bound_fields, []))
 
     def test_form_processing_error(self):
-        process_form_result = self.person_form.process_form(original_text="REG fn ln ag12 locLusaka")
+        process_form_result = self.person_form.process_form(original_text="REG fn lnLesa ag12 locLusaka")
         expected_bound_fields = (
-                ('first_name', ('fn', '')),
-                ('last_name', ('ln', '')),
+                ('last_name', ('ln', 'Lesa')),
                 ('age', ('ag', '12')),
                 ('location', ('loc', 'Lusaka'))
                 )

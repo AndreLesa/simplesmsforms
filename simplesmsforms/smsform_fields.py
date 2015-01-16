@@ -40,7 +40,6 @@ class GenericSMSField(object):
         happen here."""
         self.accepted_prefix = self.accepted_prefix or accepted_prefix
 
-        text = text.strip().lower()
         return text, accepted_prefix
 
     def validate(self, value):

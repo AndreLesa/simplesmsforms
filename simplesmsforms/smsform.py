@@ -95,7 +95,7 @@ class SMSForm(object):
         #The bound fields in here have a structure that binds the actual field
         #functions to the field and prefix. We transform that to (field name, (prefix, text))
         transformed_bound_fields = ()
-        for bound_field in bound_fields:
+        for bound_field in python_fields:
             prefix_with_text = (bound_field[1][0], bound_field[1][1])
             transformed_bound_fields += ((
                 (bound_field[0].name, prefix_with_text)
