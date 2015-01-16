@@ -52,7 +52,7 @@ class SMSForm(object):
         for expected_field in self.get_fields():
             for prefix_regex in expected_field.get_field_regex():
                 compiled_regex = re.compile(prefix_regex["regex"])
-                match = compiled_regex.findall(text_string)
+                match = compiled_regex.findall(text_string, re.IGNORECASE)
                 if match:
                     bound_field = (
                         expected_field,
