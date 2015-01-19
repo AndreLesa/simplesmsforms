@@ -158,4 +158,4 @@ class DateField(GenericSMSField):
                 "Date not recognized, please use the format: dayMonthYear"
             )
 
-        return python_date, accepted_prefix
+        return python_date.date(), accepted_prefix

@@ -139,7 +139,7 @@ class TestSMSFields(unittest.TestCase):
         field = DateField(name="date")
         python_date = field.to_python("08/nov/14")
 
-        self.assertEqual(python_date, (datetime.datetime(2014, 11, 8), ""))
+        self.assertEqual(python_date, (datetime.date(2014, 11, 8), ""))
 
     def test_for_required_field(self):
         field = PrefixField(prefixes=["fn"], name="first_name")
