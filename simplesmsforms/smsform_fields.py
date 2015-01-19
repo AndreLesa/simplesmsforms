@@ -11,13 +11,20 @@ from smsform_validators import multiple_choice_validator, single_choice_validato
 class GenericSMSField(object):
     empty_values = [None, [], ""]
 
+
     def __init__(self, name, *args, **kwargs):
         self.name = name
         self.validators = kwargs.get('validators') or []
         self.prefixes = kwargs.get("prefixes") or [""]
         self.prefixes.sort(key=len, reverse=True)#Longest prefix should come first
         self.accepted_prefix = ""
-        self.required = kwargs.get("required") or True
+
+        required = kwargs.get("required", "blank")
+        if required == "blank":
+            self.required = True
+        else:
+            self.required = False
+
 
     def get_field_regex(self):
         """Return a dict of 'prefix':prefix and regex:regex"""

@@ -86,7 +86,20 @@ class SMSForm(object):
             else:
                 python_fields += ((field, (prefix, valid_obj)),)
 
+        #check for missing fields
+        required_fields = [field for field in self.get_fields() if field.required]
+        print required_fields
+
+
         return passed_validation, python_fields, errors
+
+    def bound_fields_to_bound_dict(self, bound_fields):
+        bound_dict = {}
+        for bound_field in bound_fields:
+            field_name = bound_field[0]
+            prefix, value = bound_field[1][0], bound_field[1][1]
+            bound_dict[field_name] = value
+        return bound_dict
 
     def process_form(self, original_text):
         bound_fields = self.bind_fields(original_text)
