@@ -118,7 +118,18 @@ class DateField(GenericSMSField):
         self.date_formats = date_formats
 
     def get_field_regex(self):
-        format_one = ""
+        """We will accept 2 formats for the dates: dayMonthYear, day/Month/Year
+            with the month acceptable as a word or digits
+        """
+        regex_strings = [
+            r"\b\d{1,2}[-/]\d{1,2}[-/]\d{1,4}\b",
+            r"\b\d{1,2}[a-z]{3,14}\d{1,4}\b",
+        ]
+        return [
+            {
+                "prefix": "", "regex": "{regex_strings}".format(regex_strings="|".join(regex_strings), name=self.name)
+            }
+        ]
 
     def to_python(self, date_string, accepted_prefix=""):
         python_date = None

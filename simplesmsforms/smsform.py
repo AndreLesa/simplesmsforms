@@ -1,6 +1,6 @@
 import re
 import itertools
-from smsform_exceptions import SMSFieldException
+from smsform_exceptions import SMSFieldException, MissingRequiredFieldException
 # SMS Form
 
 def to_string(item):
@@ -74,23 +74,25 @@ class SMSForm(object):
         passed_validation = True
         errors = []
         python_fields = ()
-        for bound_field in bound_fields:
-            field = bound_field[0]
-            bound_text = bound_field[1][1]
-            prefix = bound_field[1][0]
+
+        bound_fields_dict = self.bound_fields_to_bound_dict(bound_fields)
+        for field in self.get_fields():
+            field_name = field.name
             try:
-                valid_obj = field.process_field(bound_text, prefix)
+                value = bound_fields_dict[field]['value']
+                prefix = bound_fields_dict[field]['prefix']
+                valid_obj = field.process_field(value, prefix)
             except SMSFieldException, e:
                 errors.append(e)
                 passed_validation = False
+            except KeyError, e:
+                if field.required:
+                    errors.append(MissingRequiredFieldException(field_name))
+                    passed_validation = False
+                else:
+                    pass
             else:
                 python_fields += ((field, (prefix, valid_obj)),)
-
-        #check for missing fields
-        required_fields = [field for field in self.get_fields() if field.required]
-        print required_fields
-
-
         return passed_validation, python_fields, errors
 
     def bound_fields_to_bound_dict(self, bound_fields):
@@ -98,7 +100,7 @@ class SMSForm(object):
         for bound_field in bound_fields:
             field_name = bound_field[0]
             prefix, value = bound_field[1][0], bound_field[1][1]
-            bound_dict[field_name] = value
+            bound_dict[field_name] = {"value":value, "prefix":prefix}
         return bound_dict
 
     def process_form(self, original_text):

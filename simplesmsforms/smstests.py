@@ -16,7 +16,7 @@ class PersonForm(SMSForm):
     last_name = PrefixField(prefixes=["ln"], name="last_name")
     age = PrefixField(prefixes=["ag"], name="age")
     location = PrefixField(prefixes=["loc"], name="location")
-    date = PrefixField(prefixes=["dt"], name="date")
+    date = DateField(prefixes=["dt"], name="date", required=False)
 
     def get_fields(self):
         return [self.first_name, self.last_name, self.age, self.location, self.date]
@@ -52,10 +52,15 @@ class TestSMSForms(unittest.TestCase):
         self.assertTrue(passed_validation)
         self.assertEqual([], errors)
 
+    def test_missing_required_field(self):
+        valid, python_fields, errors = self.person_form.process_form(
+            original_text="REG lnLesa ag12 locLusaka")
+        self.assertFalse(valid)
+        self.assertIsInstance(errors[0], MissingRequiredFieldException)
+
     def test_form_validation_date(self):
-        PersonForm.date_reg = DateField(name="person_reg_date")
         bound_fields = self.expected_bound_fields + (
-            (self.person_form.date_reg, ("dt", "12jan15")),
+            (self.person_form.date, ("dt", "12jan15")),
         )
         passed_validation, python_fields, errors = self.person_form.validate_form(
             bound_fields)
@@ -66,9 +71,8 @@ class TestSMSForms(unittest.TestCase):
         self.assertIsInstance(date_field, datetime.date)
 
     def test_failed_formvalidation(self):
-        PersonForm.date_reg = DateField(name="person_reg_date")
         bound_fields = self.expected_bound_fields + (
-            (self.person_form.date_reg, ("", "08xxx11xxx14")),
+            (self.person_form.date, ("", "08xxx11xxx14")),
         )
         passed_validation, python_fields, errors = self.person_form.validate_form(
             bound_fields)
