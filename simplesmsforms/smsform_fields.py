@@ -56,7 +56,7 @@ class GenericSMSField(object):
 
         for validator in self.validators:
             try:
-                validator(value=value, choices=self.choices)
+                validator(value=value)
             except SMSFieldException, e:
                 raise
         return True
@@ -102,6 +102,17 @@ class MultiChoiceField(GenericSMSField):
             }
         ]
 
+    def validate(self, value):
+        # check to see if the field is required and present
+        if self.required and value in self.empty_values:
+            raise MissingRequiredFieldException(self.get_verbose_name())
+
+        for validator in self.validators:
+            try:
+                validator(value=value, choices=self.choices)
+            except SMSFieldException, e:
+                raise
+        return True
 
 class SingleChoiceField(MultiChoiceField):
 
