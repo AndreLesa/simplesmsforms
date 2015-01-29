@@ -30,7 +30,7 @@ class GenericSMSField(object):
         """Return a dict of 'prefix':prefix and regex:regex"""
         prefix_regexes = []
         for prefix in self.prefixes:
-            prefix_regex = "{prefix}(?P<{name}>\w*)".format(
+            prefix_regex = r"\b{prefix}(?P<{name}>\w*)".format(
                 prefix=prefix,
                 name=self.name
             )
